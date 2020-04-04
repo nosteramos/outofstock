@@ -15,23 +15,16 @@ class Tests(unittest.TestCase):
     def setUp(self):
         options = Options()
         options.add_argument("--disable-notifications")
+        options.add_argument("--disable-plugins")
+        options.add_argument("--disable-extensions")
+        options.set_capability('unexpectedAlertBehaviour', "dismiss")
+        options.add_experimental_option("useAutomationExtension", False)
         self.driver = webdriver.Chrome("chromedriver.exe", options=options)
 
     def test_outogstock(self, urls=None):
 
+        soldout_links = []
         wait = WebDriverWait(self.driver, 10)
-
-        #
-        # filepath = 'urls'
-        # urls = []
-        # with open(filepath) as fp:
-        #     line = fp.readline()
-        #     cnt = 1
-        #     while line:
-        #         urls.append(line)
-        #         line = fp.readline()
-        #         cnt += 1
-
         categories = ["aquariums",
                       "filtration-reactors-media",
                       "controllers-monitoring",
@@ -63,7 +56,6 @@ class Tests(unittest.TestCase):
                 elms.extend(self.driver.find_elements_by_xpath("//*[contains(text(),'Sold out')]"))
                 outofstock = False
 
-                soldout_links = []
                 for elm in elms:
                     if elm.is_displayed():
                         outofstock = True
@@ -72,9 +64,16 @@ class Tests(unittest.TestCase):
                             soldout_links.append(links[0].get_attribute("href"))
                         break
 
-                for l in soldout_links:
-                    if str(l).startswith("http"):
-                        msg = msg + l + "\n"
+        for l in soldout_links:
+            if str(l).startswith("http"):
+                msg = msg + l + "\n"
+                self.driver.quit()
+                self.setUp()
+                self.driver.get(l)
+                time.sleep(3)
+                self.driver.find_elements_by_id("InStockNotifyEmailAddress")[0].send_keys("reuterz@gmail.com")
+                self.driver.find_elements_by_id("InStockNotifyClick")[0].click()
+                time.sleep(2)
 
         send_mail(rcpt_list="amosmastbaum@gmail.com,reuterz@gmail.com", subject="Sold out - All Products",
                   body_text=msg)
