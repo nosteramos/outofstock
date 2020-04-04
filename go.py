@@ -23,7 +23,7 @@ class Tests(unittest.TestCase):
 
     def test_outogstock(self, urls=None):
 
-        soldout_links = []
+        soldout_links = {""}
         wait = WebDriverWait(self.driver, 10)
         categories = ["aquariums",
                       "filtration-reactors-media",
@@ -57,25 +57,27 @@ class Tests(unittest.TestCase):
                 outofstock = False
 
                 for elm in elms:
-                    if elm.is_displayed():
-                        outofstock = True
-                        links = elm.find_element_by_xpath("..").find_elements_by_tag_name("a")
+                    links = elm.find_element_by_xpath("..").find_elements_by_tag_name("a")
+                    print(links[0].get_attribute("href"))
+                    if elm.is_displayed() or True:
                         if links:
-                            soldout_links.append(links[0].get_attribute("href"))
-                        break
+                            soldout_links.add(links[0].get_attribute("href"))
 
         for l in soldout_links:
             if str(l).startswith("http"):
                 msg = msg + l + "\n"
-                self.driver.quit()
-                self.setUp()
-                self.driver.get(l)
-                time.sleep(3)
-                self.driver.find_elements_by_id("InStockNotifyEmailAddress")[0].send_keys("reuterz@gmail.com")
-                self.driver.find_elements_by_id("InStockNotifyClick")[0].click()
-                time.sleep(2)
+                # self.driver.quit()
+                # self.setUp()
+                # self.driver.get(l)
+                # time.sleep(3)
+                # self.driver.find_elements_by_id("InStockNotifyEmailAddress")[0].send_keys("reuterz@gmail.com")
+                # self.driver.find_elements_by_id("InStockNotifyClick")[0].click()
+                # time.sleep(2)
 
-        send_mail(rcpt_list="amosmastbaum@gmail.com,reuterz@gmail.com", subject="Sold out - All Products",
+        send_mail(rcpt_list="amosmastbaum@gmail.com", subject="Sold out - All Products",
+                  body_text=msg)
+
+        send_mail(rcpt_list="reuterz@gmail.com", subject="Sold out - All Products",
                   body_text=msg)
 
     def tearDown(self):
