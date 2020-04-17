@@ -7,10 +7,61 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
 
+
 from channels import send_mail
+####
+
+
+#//div[@class='product g']
+
 
 
 class Tests(unittest.TestCase):
+
+
+    def waitForPage(self, url):
+        self.driver.get(url)
+        WebDriverWait(self.driver, 1000).until(
+            lambda driver: driver.execute_script('return document.readyState') == 'complete')
+        self.driver.refresh()
+        WebDriverWait(self.driver, 1000).until(
+            lambda driver: driver.execute_script('return document.readyState') == 'complete')
+        self.driver.refresh()
+        WebDriverWait(self.driver, 1000).until(
+            lambda driver: driver.execute_script('return document.readyState') == 'complete')
+
+
+
+    def getLinks(self, url):
+        self.waitForPage(url)
+        items = self.driver.find_elements_by_class_name("product g")
+        if items:
+            result = []
+            for item in items:
+               result.append(item.find_element_by_xpath("//a/@href"))
+            return result
+
+        cat = self.driver.find_elements_by_class_name("category g")
+        result = []
+        for c in cat:
+            _r = self.getLinks(c.find_element_by_xpath("//a/@href"))
+            result.extend(_r)
+
+
+
+
+    def ping(self,host):
+        """
+        Returns True if host responds to a ping request
+        """
+        import subprocess, platform
+
+        # Ping parameters as function of OS
+        ping_str = "-n 1" if platform.system().lower() == "windows" else "-c 1"
+        args = "ping " + " " + ping_str + " " + host
+        need_sh = False if platform.system().lower() == "windows" else True
+        # Ping
+        return subprocess.call(args, shell=need_sh) == 0
 
     def setUp(self):
         options = Options()
@@ -21,7 +72,24 @@ class Tests(unittest.TestCase):
         options.add_experimental_option("useAutomationExtension", False)
         self.driver = webdriver.Chrome("chromedriver.exe", options=options)
 
+    # def test_outogstock_2(self):
+    #
+    #     self.getLinks("https://www.petmountain.com/category/aquarium")
+    #
+    #     pass
+
     def test_outogstock(self, urls=None):
+
+        last = open('last', 'r')
+        prev_list = last.readlines().copy()
+        last.close()
+
+        if not self.ping('www.saltwateraquarium.com'):
+            send_mail(rcpt_list="amosmastbaum@gmail.com", subject="Failed to run!!! Sold out - All Products",
+                      body_text="Maybe Amos turned off th Modem again?")
+            send_mail(rcpt_list="reuterz@gmail.com", subject="Failed to run!!! Sold out - All Products",
+                      body_text="Maybe Amos turned off th Modem again?")
+            exit(-1)
 
         soldout_links = {""}
         wait = WebDriverWait(self.driver, 10)
@@ -41,7 +109,7 @@ class Tests(unittest.TestCase):
                 i = i + 1
                 url = "https://www.saltwateraquarium.com/" + str(category) + ".html?sort=bestselling&page=" + str(i)
                 self.driver.get(url)
-                WebDriverWait(self.driver, 10).until(
+                WebDriverWait(self.driver, 1000).until(
                     lambda driver: driver.execute_script('return document.readyState') == 'complete')
                 elms = self.driver.find_elements_by_xpath("//*[contains(text(),'404 Error - Page not found')]")
                 if elms:
@@ -63,9 +131,20 @@ class Tests(unittest.TestCase):
                         if links:
                             soldout_links.add(links[0].get_attribute("href"))
 
+
+
+        last = open('last', 'w')
+        last.truncate()
+        ii=0
         for l in soldout_links:
             if str(l).startswith("http"):
-                msg = msg + l + "\n"
+                last.write(l + "\n")
+                ii=ii+1
+                if l + "\n" not in prev_list:
+                    msg = msg + "(new)"
+                msg = msg + str(ii) + ")" + l
+
+                msg = msg + "\n"
                 # self.driver.quit()
                 # self.setUp()
                 # self.driver.get(l)
@@ -73,6 +152,10 @@ class Tests(unittest.TestCase):
                 # self.driver.find_elements_by_id("InStockNotifyEmailAddress")[0].send_keys("reuterz@gmail.com")
                 # self.driver.find_elements_by_id("InStockNotifyClick")[0].click()
                 # time.sleep(2)
+
+        last.flush()
+        last.close()
+
 
         send_mail(rcpt_list="amosmastbaum@gmail.com", subject="Sold out - All Products",
                   body_text=msg)

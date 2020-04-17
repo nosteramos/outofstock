@@ -3,6 +3,8 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 
+
+
 def send_mail(rcpt_list, subject, body_text):
     sender_email = "amosmastbaum@gmail.com"
     receiver_email = rcpt_list
