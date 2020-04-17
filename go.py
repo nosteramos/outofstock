@@ -15,6 +15,8 @@ from channels import send_mail
 
 #//div[@class='product g']
 
+##
+
 
 
 class Tests(unittest.TestCase):
