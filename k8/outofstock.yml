@@ -21,7 +21,7 @@ spec:
         - containerPort: 4444
         volumeMounts:
         - mountPath: /dev/shm
-          name: tmp-volume
+          name: dev-shm
       volumes:
         - name: dev-shm
           emptyDir:
