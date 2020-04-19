@@ -8,7 +8,7 @@ metadata:
 spec:
   replicas: 1
   template:
-    metadata: outofstock
+    metadata:
       labels:
         name: outofstock
     spec:
