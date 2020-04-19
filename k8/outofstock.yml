@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: outofstock
   labels:
-    name: 
+    name: outofstock
   namespace: outofstock
 spec:
   replicas: 1
