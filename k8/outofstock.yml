@@ -18,24 +18,6 @@ spec:
         ports:
         - name: standalone-chrome
           containerPort: 4444
-        securityContext:
-          capabilities:
-            drop:
-              - all
-            add:
-              - CHOWN
-              - SETGID
-              - SETUID
-          readOnlyRootFilesystem: true
-        volumeMounts:
-        - mountPath: /tmp
-          name: tmp-volume
-      volumes:
-        - name: tmp-volume
-          emptyDir:
-            medium: Memory
-      nodeSelector:
-        beta.kubernetes.io/os: linux
 ---
 apiVersion: v1
 kind: Service
