@@ -1,0 +1,53 @@
+apiVersion: 1.0
+kind: Deployment
+metadata:
+  name: outofstock
+  labels:
+    name: 
+  namespace: outofstock
+spec:
+  replicas: 1
+  template:
+    metadata:outofstock
+      labels:
+        name:outofstock
+    spec:
+      containers:
+      - name: selenium-hub
+        image: selenium/standalone-chrome
+        ports:
+        - name: standalone-chrome
+          containerPort: 4444
+        securityContext:
+          capabilities:
+            drop:
+              - all
+            add:
+              - CHOWN
+              - SETGID
+              - SETUID
+          readOnlyRootFilesystem: true
+        volumeMounts:
+        - mountPath: /tmp
+          name: tmp-volume
+      volumes:
+        - name: tmp-volume
+          emptyDir:
+            medium: Memory
+      nodeSelector:
+        beta.kubernetes.io/os: linux
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: 
+  labels:
+    name: 
+  namespace: outofstock
+spec:
+  ports:
+    # the port that this service should serve on
+  - port: 4444
+    targetPort: 4444
+  selector:
+    name: outofstock
