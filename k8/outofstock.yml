@@ -1,20 +1,28 @@
-apiVersion: v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: outofstock
   labels:
-    name: outofstock
-  namespace: outofstock
+    app: outofstock
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: outofstock
   template:
     metadata:
       labels:
-        name: outofstock
+        app: outofstock
     spec:
       containers:
-      - name: selenium-hub
+      - name: seleniumchrome
         image: selenium/standalone-chrome
         ports:
-        - name: standalone-chrome
-          containerPort: 4444
+        - containerPort: 4444
+        volumeMounts:
+        - mountPath: /dev/shm
+          name: tmp-volume
+      volumes:
+        - name: dev-shm
+          emptyDir:
+            medium: Memory
