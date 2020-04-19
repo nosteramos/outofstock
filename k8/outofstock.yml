@@ -42,7 +42,7 @@ kind: Service
 metadata:
   name: 
   labels:
-    name: 
+    name: outofstock
   namespace: outofstock
 spec:
   ports:
