@@ -18,18 +18,3 @@ spec:
         ports:
         - name: standalone-chrome
           containerPort: 4444
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: 
-  labels:
-    name: outofstock
-  namespace: outofstock
-spec:
-  ports:
-    # the port that this service should serve on
-  - port: 4444
-    targetPort: 4444
-  selector:
-    name: outofstock
