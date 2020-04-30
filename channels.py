@@ -8,7 +8,7 @@ from email.mime.multipart import MIMEMultipart
 def send_mail(rcpt_list, subject, body_text):
     sender_email = "amosmastbaum@gmail.com"
     receiver_email = rcpt_list
-    password = "@noamassaf@"
+    password = ""
 
     message = MIMEMultipart("alternative")
     message["Subject"] = subject
